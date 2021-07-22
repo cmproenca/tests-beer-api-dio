@@ -50,5 +50,40 @@ public class BeerServiceTest {
     @InjectMocks
     private BeerService beerService;
 
+    @Test
+    void whenBeerInformedThenItShouldBeCreated() throws BeerAlreadyRegisteredException {
+         BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+         Beer expectedSavedBeer = beerMapper.toModel(expectedBeerDTO);
 
+         when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.empty());
+         when(beerRepository.save(expectedSavedBeer)).thenReturn(expectedSavedBeer);
+
+         BeerDTO createdBeerDTO = beerService.createBeer(expectedBeerDTO);
+
+         assertThat(createdBeerDTO.getId(), is(equalTo(expectedBeerDTO.getId())));
+         assertThat(createdBeerDTO.getName(), is(equalTo(expectedBeerDTO.getName())));
+         assertThat(createdBeerDTO.getQuantity(), is(equalTo(expectedBeerDTO.getQuantity())));
+    }
+
+    @Test
+    void whenAlreadyRegisteredBeerInformedThenAnExceptionShouldBeThrown(){
+        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer duplicatedBeer = beerMapper.toModel(expectedBeerDTO);
+
+        when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.of(duplicatedBeer));
+
+        assertThrows(BeerAlreadyRegisteredException.class, () -> beerService.createBeer(expectedBeerDTO));
+    }
+
+    @Test
+    void whenValidBeerNameIsGivenThenReturnABeer() throws BeerNotFoundException {
+        BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedFoundBeer = beerMapper.toModel(expectedFoundBeerDTO);
+
+        when(beerRepository.findByName(expectedFoundBeer.getName())).thenReturn(Optional.of(expectedFoundBeer));
+
+        BeerDTO foundBeerDTO = beerService.findByName(expectedFoundBeerDTO.getName());
+
+        assertThat(foundBeerDTO, is(equalTo(expectedFoundBeerDTO)));
+    }
 }

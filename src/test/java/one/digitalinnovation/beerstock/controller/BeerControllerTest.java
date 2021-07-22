@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
@@ -58,17 +59,12 @@ public class BeerControllerTest {
 
     @Test
     void whenPOSTIsCalledThenABeerIsCreated() throws Exception {
-        // given
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
-        // when
         when(beerService.createBeer(beerDTO)).thenReturn(beerDTO);
 
-        // then
-        mockMvc.perform(post(BEER_API_URL_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(beerDTO)))
-                .andExpect(status().isCreated())
+        mockMvc.perform(post(BEER_API_URL_PATH).contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(beerDTO))).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is(beerDTO.getName())))
                 .andExpect(jsonPath("$.brand", is(beerDTO.getBrand())))
                 .andExpect(jsonPath("$.type", is(beerDTO.getType().toString())));
@@ -87,7 +83,7 @@ public class BeerControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
+    /*@Test
     void whenGETIsCalledWithValidNameThenOkStatusIsReturned() throws Exception {
         // given
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
@@ -270,5 +266,5 @@ public class BeerControllerTest {
 //                .contentType(MediaType.APPLICATION_JSON)
 //                .content(asJsonString(quantityDTO)))
 //                .andExpect(status().isNotFound());
-//    }
+//    }*/
 }
